@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.Threading;
+using System.Device.Location;
 
 namespace GY521Panel
 {
@@ -26,12 +27,20 @@ namespace GY521Panel
 		{
 			InitializeComponent();
 			getAvailablePorts();
+			GeoCoordinateWatcher watcher = new GeoCoordinateWatcher();
+			watcher.PositionChanged += watcher_PositionChanged;
+			watcher.Start();
 
 			this.compass.BackColor = System.Drawing.Color.Black;
 			this.compass.Image = Compass.DrawCompass(0, 0, this.maxPitch, 0, this.maxRoll, this.compass.Size);
 
 			this.pitchRoll.BackColor = System.Drawing.Color.Black;
 			this.pitchRoll.Image = PitchRoll.DrawPitchRoll(0, 0, this.pitchRoll.Size);
+		}
+
+		private void watcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e) {
+			this.latitude.Text = e.Position.Location.Latitude.ToString();
+			this.longitude.Text = e.Position.Location.Longitude.ToString();
 		}
 
 		void getAvailablePorts()
